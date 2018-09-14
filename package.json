@@ -1,0 +1,25 @@
+{
+  "name": "hedpay",
+  "version": "0.1.0",
+  "description": "HEdpAY smart contracts",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rjkz808/hedpay.git"
+  },
+  "author": "Nikolai Kornilov (facebook.com/k.kornilov01, github.com/rjkz808)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rjkz808/hedpay/issues"
+  },
+  "homepage": "https://github.com/rjkz808/hedpay#readme",
+  "dependencies": {
+    "openzeppelin-solidity": "1.12.0"
+  }
+}
