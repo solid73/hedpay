@@ -3,6 +3,7 @@ pragma solidity ^0.4.24;
 import "./ERC223.sol";
 import "./ERC223Receiver.sol";
 import "./ERC223BasicReceiver.sol";
+import "./Fund.sol";
 import "openzeppelin-solidity/contracts/ownership/Contactable.sol";
 import "openzeppelin-solidity/contracts/AddressUtils.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -47,6 +48,8 @@ contract HedpayToken is ERC223, Contactable {
   uint public teamAmount;
   uint public preSaleAmount;
 
+  Fund public reserveFund;
+
   mapping (address => uint) internal balances;
   mapping (address => mapping (address => uint)) internal allowed;
   mapping (address => uint) internal bonuses;
@@ -55,7 +58,6 @@ contract HedpayToken is ERC223, Contactable {
    * @dev Constructor that sets initial contract parameters
    */
   constructor() public {
-    totalSupply = 1000000000;
     balances[owner] = totalSupply;
     creationTime = block.timestamp;
     saleAmount = totalSupply.div(100).mul(salePercent);
@@ -119,7 +121,7 @@ contract HedpayToken is ERC223, Contactable {
    * @param _weiAmount uint wei amount
    * @return uint tokens amount
    */
-  function getTokenAmount(uint _weiAmount) public view returns (uint) {
+  function getTokenAmount(uint _weiAmount) public pure returns (uint) {
     return _weiAmount.mul(rate);
   }
 
@@ -309,18 +311,33 @@ contract HedpayToken is ERC223, Contactable {
    * @param _owner address the tokens owner
    * @param _value uint bonus tokens amount
    */
-  function setBonus(address _owner, uint _value) public onlyOwner {
+  function setBonus(address _owner, uint _value, bool preSale) 
+    public onlyOwner 
+  {
     require(_owner != address(0));
     require(_value <= balanceOf(_owner));
     require(bonusAmount > 0 || reservedAmount > 0);
     require(_value <= bonusAmount || _value <= reservedAmount);
 
     bonuses[_owner] = _value;
-    if (bonusAmount > 0) {
-      bonusAmount = bonusAmount.sub(_value);
+    if (preSale) {
+      preSaleAmount = preSaleAmount.sub(_value);
+      transfer(_owner, _value, abi.encode("transfer the bonus"));
     } else {
-      reservedAmount = reservedAmount.sub(_value);
+      if (_value <= bonusAmount) {
+        bonusAmount = bonusAmount.sub(_value);
+        transfer(_owner, _value, abi.encode("transfer the bonus"));
+      } else if (_value > bonusAmount && _value <= reservedAmount) {
+        reservedAmount = reservedAmount.sub(_value);
+        reserveFund.transferFrom(
+          reserveFund, 
+          _owner, 
+          _value, 
+          abi.encode("transfer the bonus")
+        );
+      }
     }
+
   }
 
   /**
@@ -331,13 +348,15 @@ contract HedpayToken is ERC223, Contactable {
   function refill(address _to, uint _weiAmount) public onlyOwner {
     require(_preValidateRefill(_to, _weiAmount));
     setBonus(
+      _to,
       getTokenAmountBonus(_weiAmount).sub(
         getTokenAmount(_weiAmount)
-      )
+      ),
+      false
     );
     buyersCount = buyersCount.add(1);
     saleAmount = saleAmount.sub(getTokenAmount(_weiAmount));
-    transfer(_to, getTokenAmountBonus(_weiAmount), "0x726566696c6c");
+    transfer(_to, getTokenAmount(_weiAmount), abi.encode("refill"));
   }
 
   /**
@@ -350,6 +369,34 @@ contract HedpayToken is ERC223, Contactable {
     for (uint i = 0; i < _to.length; i++) {
       refill(_to[i], _weiAmount[i]);
     }
+  }
+
+  /**
+   * @dev Function to set the reserve fund and transfer tokens to it
+   * @param _reserveFund Fund address of the deployed reserve fund
+   */
+  function setReserveFund(Fund _reserveFund) public onlyOwner {
+    require(address(_reserveFund) != address(0));
+    reserveFund = _reserveFund;
+    transfer(
+      address(_reserveFund), 
+      reservedAmount, 
+      abi.encode("transfer reserved tokens to the reserve fund")
+    );
+  }
+
+  /**
+   * @dev Function to finalize the sale
+   * @param _teamFund address the team fund
+   */
+  function finalize(address _teamFund) public onlyOwner {
+    require(_teamFund != address(0));
+    teamAmount = 0;
+    transfer(
+      _teamFund,
+      teamAmount,
+      abi.encode("transfer reserved for team tokens to the team fund")
+    );
   }
 
   /**
@@ -370,7 +417,7 @@ contract HedpayToken is ERC223, Contactable {
     internal 
   {
     if (_to.isContract()) {
-      ERC223ReceivingContract receiver = ERC223ReceivingContract(_to);
+      ERC223BasicReceiver receiver = ERC223BasicReceiver(_to);
       receiver.tokenFallback(_from, _value, _data);
     }
   }
