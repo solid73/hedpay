@@ -329,7 +329,7 @@ contract HedpayToken is ERC223, Contactable {
         transfer(_owner, _value, abi.encode("transfer the bonus"));
       } else if (_value > bonusAmount && _value <= reservedAmount) {
         reservedAmount = reservedAmount.sub(_value);
-        reserveFund.transferFrom(
+        transferFrom(
           reserveFund, 
           _owner, 
           _value, 
