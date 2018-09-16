@@ -20,7 +20,7 @@ contract ReserveFund is Fund {
    * @dev Constructor that sets the initial contract parameters
    * @param _token ERC223 address of the ERC-223 token
    */
-  constructor(ERC223 _token) public Fund(_token, "Reserve Fund") {
+  constructor(IERC223 _token) public Fund(_token, "Reserve Fund") {
   }
 
   /**

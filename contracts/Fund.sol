@@ -1,15 +1,15 @@
 pragma solidity ^0.4.24;
 
-import "./ERC223Holder.sol";
-import "./ERC223.sol";
+import "./ERC223Receiver.sol";
+import "./IERC223.sol";
 import "openzeppelin-solidity/contracts/ownership/Contactable.sol";
 
 
 /**
  * @title Contract that can hold and transfer ERC-223 tokens
  */
-contract Fund is ERC223Holder, Contactable {
-  ERC223 public token;
+contract Fund is ERC223Receiver, Contactable {
+  IERC223 public token;
   string public fundName;
 
   /**
@@ -17,7 +17,7 @@ contract Fund is ERC223Holder, Contactable {
    * @param _token ERC223 address of the ERC-223 token
    * @param _fundName string the fund name
    */
-  constructor(ERC223 _token, string _fundName) public {
+  constructor(IERC223 _token, string _fundName) public {
     require(address(_token) != address(0));
     token = _token;
     fundName = _fundName;

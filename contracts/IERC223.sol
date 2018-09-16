@@ -1,9 +1,9 @@
 pragma solidity ^0.4.24;
 
-import "./ERC223Basic.sol";
+import "./IERC223Basic.sol";
 
 
-contract ERC223 is ERC223Basic {
+contract IERC223 is IERC223Basic {
   function allowance(address _owner, address _spender) 
     public view returns (uint);
 

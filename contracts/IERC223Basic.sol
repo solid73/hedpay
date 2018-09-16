@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 
-contract ERC223Basic {
+contract IERC223Basic {
   function balanceOf(address _owner) public constant returns (uint);
   function transfer(address _to, uint _value) public;
   function transfer(address _to, uint _value, bytes _data) public;
