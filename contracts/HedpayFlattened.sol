@@ -309,10 +309,10 @@ contract Hedpay is IERC223, Contactable {
 
   string public constant name = "HEdpAY";
   string public constant symbol = "Hdp.ф";
-  uint8 public constant decimals = 0;
+  uint8 public constant decimals = 4;
   uint8 public constant secondPhaseBonus = 33;
   uint8[3] public thirdPhaseBonus = [10, 15, 20];
-  uint public constant totalSupply = 1000000000;
+  uint public constant totalSupply = 10000000000000;
   uint public constant secondPhaseStartTime = 1537056000;
   uint public constant secondPhaseEndTime = 1540943999;
   uint public constant thirdPhaseStartTime = 1540944000;
@@ -351,11 +351,15 @@ contract Hedpay is IERC223, Contactable {
   constructor() public {
     balances[owner] = totalSupply;
     creationTime = block.timestamp;
-    saleAmount = totalSupply.div(100).mul(salePercent);
-    bonusAmount = totalSupply.div(100).mul(bonusPercent);
-    reservedAmount = totalSupply.div(100).mul(reservedPercent);
-    teamAmount = totalSupply.div(100).mul(teamPercent);
-    preSaleAmount = totalSupply.div(100).mul(preSalePercent);
+    saleAmount = totalSupply.div(100).mul(salePercent).mul(10 ** decimals);
+    bonusAmount = totalSupply.div(100).mul(bonusPercent).mul(10 ** decimals);
+    reservedAmount = totalSupply.div(100).mul(reservedPercent.mul(
+      10 ** decimals
+    ));
+    teamAmount = totalSupply.div(100).mul(teamPercent).mul(10 ** decimals);
+    preSaleAmount = totalSupply.div(100).mul(preSalePercent).mul(
+      10 ** decimals
+    );
   }
 
   /**
@@ -413,7 +417,7 @@ contract Hedpay is IERC223, Contactable {
    * @return uint tokens amount
    */
   function getTokenAmount(uint _weiAmount) public pure returns (uint) {
-    return _weiAmount.mul(rate);
+    return _weiAmount.mul(rate).div((18 - decimals) ** 10);
   }
 
   /**

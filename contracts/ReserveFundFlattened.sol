@@ -281,9 +281,9 @@ contract ReserveFund is Fund {
 
   uint public constant creationTime = 1537056000;
 
-  uint public firstLimit = 20000000;
-  uint public secondLimit = 10000000;
-  uint public thirdLimit = 20000000;
+  uint public firstLimit = 200000000000;
+  uint public secondLimit = 100000000000;
+  uint public thirdLimit = 200000000000;
 
   /**
    * @dev Constructor that sets the initial contract parameters
