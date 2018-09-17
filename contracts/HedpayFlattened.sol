@@ -351,14 +351,20 @@ contract Hedpay is IERC223, Contactable {
   constructor() public {
     balances[owner] = totalSupply;
     creationTime = block.timestamp;
-    saleAmount = totalSupply.div(100).mul(salePercent).mul(10 ** decimals);
-    bonusAmount = totalSupply.div(100).mul(bonusPercent).mul(10 ** decimals);
-    reservedAmount = totalSupply.div(100).mul(reservedPercent.mul(
-      10 ** decimals
-    ));
-    teamAmount = totalSupply.div(100).mul(teamPercent).mul(10 ** decimals);
+    saleAmount = totalSupply.div(100).mul(salePercent).mul(
+      10 ** uint(decimals)
+    );
+    bonusAmount = totalSupply.div(100).mul(bonusPercent).mul(
+      10 ** uint(decimals)
+    );
+    reservedAmount = totalSupply.div(100).mul(reservedPercent).mul(
+      10 ** uint(decimals)
+    );
+    teamAmount = totalSupply.div(100).mul(teamPercent).mul(
+      10 ** uint(decimals)
+    );
     preSaleAmount = totalSupply.div(100).mul(preSalePercent).mul(
-      10 ** decimals
+      10 ** uint(decimals)
     );
   }
 
@@ -417,7 +423,7 @@ contract Hedpay is IERC223, Contactable {
    * @return uint tokens amount
    */
   function getTokenAmount(uint _weiAmount) public pure returns (uint) {
-    return _weiAmount.mul(rate).div((18 - decimals) ** 10);
+    return _weiAmount.mul(rate).div((18 - uint(decimals)) ** 10);
   }
 
   /**
@@ -747,3 +753,4 @@ contract Hedpay is IERC223, Contactable {
     );
   }
 }
+
