@@ -692,12 +692,13 @@ contract Hedpay is IERC223, Contactable {
    */
   function finalize(address _teamFund) public onlyOwner {
     require(_teamFund != address(0));
-    teamAmount = 0;
+    require(teamAmount > 0);
     transfer(
       _teamFund,
       teamAmount,
       abi.encode("transfer reserved for team tokens to the team fund")
     );
+    teamAmount = 0;
   }
 
   /**
@@ -753,4 +754,5 @@ contract Hedpay is IERC223, Contactable {
     );
   }
 }
+
 
